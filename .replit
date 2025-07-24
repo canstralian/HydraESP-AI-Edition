@@ -1,8 +1,22 @@
-modules = ["cpp-clang14", "c-clang14", "bash"]
+modules = ["bash", "c-clang14", "cpp-clang14", "python-3.11"]
 compile = "make"
+run = "make build"
 
 [nix]
 channel = "stable-25_05"
 
 [deployment]
 build = ["sh", "-c", "make"]
+run = ["sh", "-c", "make build"]
+
+[workflows]
+runButton = "Build ESP32"
+
+[[workflows.workflow]]
+name = "Build ESP32"
+author = 25868489
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "make build"
