@@ -27,7 +27,11 @@
 #include "ai_states.h"
 #include "system_monitor.h"
 
-// Task handles for FreeRTOS
+// Global variables that should be declared at the top of main.cpp
+sensor_data_t global_sensor_data = {0};
+SemaphoreHandle_t sensor_data_mutex = NULL;
+
+// Task handles
 TaskHandle_t ui_task_handle = NULL;
 TaskHandle_t ai_task_handle = NULL;
 TaskHandle_t scan_task_handle = NULL;
@@ -39,10 +43,12 @@ sensor_data_t global_sensor_data = {0};
 SemaphoreHandle_t sensor_data_mutex = NULL;
 QueueHandle_t ai_state_queue = NULL;
 
-// Forward declarations
+// Task function declarations
 void ui_task(void* parameter);
-void ai_task(void* parameter);
 void scan_task(void* parameter);
+
+// Forward declarations
+void ai_task(void* parameter);
 void system_task(void* parameter);
 bool initialize_hardware(void);
 bool initialize_storage(void);
@@ -51,42 +57,42 @@ void create_tasks(void);
 void setup() {
     Serial.begin(115200);
     delay(1000);
-    
+
     Serial.println("\n" + String('=', 50));
     Serial.println("🧠 HydraESP AI Edition v2.0");
     Serial.println("ESP32-S3 Ponagotchi-Style AI Companion");
     Serial.println(String('=', 50) + "\n");
-    
+
     // Initialize hardware components
     if (!initialize_hardware()) {
         Serial.println("❌ Hardware initialization failed!");
         ESP.restart();
     }
-    
+
     // Initialize storage systems  
     if (!initialize_storage()) {
         Serial.println("❌ Storage initialization failed!");
         ESP.restart();
     }
-    
+
     // Initialize system monitoring
     if (!system_monitor_init()) {
         Serial.println("❌ System monitor initialization failed!");
         ESP.restart();
     }
-    
+
     // Create FreeRTOS synchronization objects
     sensor_data_mutex = xSemaphoreCreateMutex();
     ai_state_queue = xQueueCreate(10, sizeof(ai_state_t));
-    
+
     if (sensor_data_mutex == NULL || ai_state_queue == NULL) {
         Serial.println("❌ Failed to create synchronization objects!");
         ESP.restart();
     }
-    
+
     // Create and start FreeRTOS tasks
     create_tasks();
-    
+
     Serial.println("✅ HydraESP AI Edition initialized successfully!");
     Serial.println("🚀 All systems operational\n");
 }
@@ -95,7 +101,7 @@ void loop() {
     // Main loop is handled by FreeRTOS tasks
     // Keep this minimal to avoid blocking
     vTaskDelay(pdMS_TO_TICKS(1000));
-    
+
     // Optional: Watchdog reset or system health check
     if (system_monitor_is_critical()) {
         Serial.println("⚠️  System in critical state - considering restart");
@@ -109,31 +115,31 @@ void loop() {
  */
 bool initialize_hardware(void) {
     Serial.println("🔧 Initializing hardware components...");
-    
+
     // Initialize status LED
     pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(STATUS_LED_PIN, HIGH); // Turn on during init
-    
+
     // Initialize SPI for display and SD card
     SPI.begin(TFT_CLK, -1, TFT_MOSI, -1);
     Serial.println("✅ SPI initialized");
-    
+
     // Initialize I2C for sensors (if needed)
     Wire.begin(I2C_SDA, I2C_SCL);
     Serial.println("✅ I2C initialized");
-    
+
     // Initialize WiFi in station mode
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     Serial.println("✅ WiFi initialized in station mode");
-    
+
     // Initialize Bluetooth
     if (!btStart()) {
         Serial.println("❌ Bluetooth initialization failed");
         return false;
     }
     Serial.println("✅ Bluetooth initialized");
-    
+
     // Check PSRAM availability
     if (psramFound()) {
         Serial.printf("✅ PSRAM initialized: %d KB available\n", 
@@ -141,7 +147,7 @@ bool initialize_hardware(void) {
     } else {
         Serial.println("⚠️  PSRAM not found - using internal RAM only");
     }
-    
+
     digitalWrite(STATUS_LED_PIN, LOW); // Turn off after init
     return true;
 }
@@ -152,7 +158,7 @@ bool initialize_hardware(void) {
  */
 bool initialize_storage(void) {
     Serial.println("💾 Initializing storage systems...");
-    
+
     // Initialize SPIFFS for internal storage
     if (!SPIFFS.begin(true)) {
         Serial.println("❌ SPIFFS initialization failed");
@@ -160,24 +166,24 @@ bool initialize_storage(void) {
     }
     Serial.printf("✅ SPIFFS initialized: %d KB total, %d KB used\n",
                   SPIFFS.totalBytes() / 1024, SPIFFS.usedBytes() / 1024);
-    
+
     // Initialize SD card (optional - don't fail if not present)
     if (SD.begin(SD_CS)) {
         uint64_t cardSize = SD.cardSize() / (1024 * 1024);
         Serial.printf("✅ SD Card initialized: %lluMB\n", cardSize);
-        
+
         // Create log directory if it doesn't exist
         if (!SD.exists("/logs")) {
             SD.mkdir("/logs");
             Serial.println("📁 Created /logs directory");
         }
-        
+
         global_sensor_data.sd_card_present = true;
     } else {
         Serial.println("⚠️  SD Card not found - logging to SPIFFS only");
         global_sensor_data.sd_card_present = false;
     }
-    
+
     return true;
 }
 
@@ -186,7 +192,7 @@ bool initialize_storage(void) {
  */
 void create_tasks(void) {
     Serial.println("🚀 Creating FreeRTOS tasks...");
-    
+
     // Create UI task (highest priority for smooth animations)
     xTaskCreatePinnedToCore(
         ui_task,                    // Task function
@@ -198,7 +204,7 @@ void create_tasks(void) {
         1                           // Core 1 (APP CPU)
     );
     Serial.println("✅ UI Task created on Core 1");
-    
+
     // Create AI inference task  
     xTaskCreatePinnedToCore(
         ai_task,
@@ -210,7 +216,7 @@ void create_tasks(void) {
         0                           // Core 0 (PRO CPU)
     );
     Serial.println("✅ AI Task created on Core 0");
-    
+
     // Create network scanning task
     xTaskCreatePinnedToCore(
         scan_task,
@@ -222,7 +228,7 @@ void create_tasks(void) {
         0                           // Core 0 (PRO CPU)
     );
     Serial.println("✅ Scan Task created on Core 0");
-    
+
     // Create system monitoring task
     xTaskCreatePinnedToCore(
         system_task,
@@ -231,15 +237,20 @@ void create_tasks(void) {
         NULL, 
         SYSTEM_TASK_PRIORITY,
         &system_task_handle,
-        0                           // Core 0 (PRO CPU)  
+        0                           // Core 0 (PRO CPU)
     );
     Serial.println("✅ System Task created on Core 0");
-    
-    Serial.println("🎯 All tasks created successfully!");
-    Serial.println("📊 Task distribution:");
-    Serial.println("   Core 0 (PRO): AI, Scan, System tasks");
-    Serial.println("   Core 1 (APP): UI task");
 }
+
+// Global variables that should be declared at the top of main.cpp
+sensor_data_t global_sensor_data = {0};
+SemaphoreHandle_t sensor_data_mutex = NULL;
+
+// Task handles
+TaskHandle_t ui_task_handle = NULL;
+TaskHandle_t ai_task_handle = NULL;
+TaskHandle_t scan_task_handle = NULL;
+TaskHandle_t system_task_handle = NULL;
 
 // Task implementations are in separate files
 extern void ui_task(void* parameter);

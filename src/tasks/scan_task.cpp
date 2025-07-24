@@ -216,6 +216,11 @@ void log_interesting_networks(void) {
 
         last_log_time = current_time;
 
-        // TODO: Log to SD card for historical analysis
+        // TODO: Log to SD card if available
+        if (global_sensor_data.sd_card_present) {
+            // Implement SD card logging here
+        }
+    }
+}ard for historical analysis
     }
 }

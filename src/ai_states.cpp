@@ -84,6 +84,6 @@ const char* ai_state_to_emoji(ai_state_t state) {
         case AI_STATE_SLEEPING: return "😴";
         case AI_STATE_ERROR:    return "💀";
         case AI_STATE_UPDATING: return "🔄";
-        default:                return "🤔";
+        default:                return "😐";
     }
 }

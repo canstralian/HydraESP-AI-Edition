@@ -48,7 +48,7 @@ if [ -z "$CPP_FILES" ]; then
 fi
 
 print_status "Checking staged C++ files..."
-echo "$CPP_FILES"
+echo "$CPP_FILES"o "$CPP_FILES"
 
 # 1. Code formatting check
 print_status "Checking code formatting..."

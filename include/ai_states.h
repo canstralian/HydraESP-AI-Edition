@@ -125,3 +125,45 @@ const char* ai_state_to_string(ai_state_t state);
 const char* ai_state_to_emoji(ai_state_t state);
 
 #endif // AI_STATES_H
+#ifndef AI_STATES_H
+#define AI_STATES_H
+
+#include <stdint.h>
+
+/**
+ * @brief AI behavioral states
+ */
+typedef enum {
+    AI_STATE_IDLE = 0,
+    AI_STATE_SNIFFING,
+    AI_STATE_TRACKING,
+    AI_STATE_LEARNING,
+    AI_STATE_EXCITED,
+    AI_STATE_SLEEPING,
+    AI_STATE_ERROR,
+    AI_STATE_UPDATING
+} ai_state_t;
+
+/**
+ * @brief Sensor data structure
+ */
+typedef struct {
+    uint32_t free_memory;
+    uint32_t uptime_seconds;
+    uint16_t wifi_networks_count;
+    uint16_t ble_devices_count;
+    int16_t wifi_signal_strength;
+    int16_t ble_signal_strength;
+    bool sd_card_present;
+    bool user_interaction;
+} sensor_data_t;
+
+// Function declarations
+const char* ai_state_to_string(ai_state_t state);
+const char* ai_state_to_emoji(ai_state_t state);
+ai_state_t analyze_behavior(const sensor_data_t* data);
+
+// Task function declarations
+void ai_task(void* parameter);
+
+#endif // AI_STATES_H

@@ -6,13 +6,14 @@
 #include <WiFi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/semphr.h>
 #include <SPIFFS.h>
 #include <SD.h>
 #include "config.h"
 #include "ai_states.h"
 #include "system_monitor.h"
 
-// External variables
+// External variables - these should be defined in main.cpp
 extern sensor_data_t global_sensor_data;
 extern SemaphoreHandle_t sensor_data_mutex;
 
