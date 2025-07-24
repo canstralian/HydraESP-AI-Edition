@@ -221,6 +221,4 @@ void log_interesting_networks(void) {
             // Implement SD card logging here
         }
     }
-}ard for historical analysis
-    }
 }

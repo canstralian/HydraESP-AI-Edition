@@ -27,21 +27,17 @@
 #include "ai_states.h"
 #include "system_monitor.h"
 
-// Global variables that should be declared at the top of main.cpp
+// Global state and synchronization
+ai_state_t current_ai_state = AI_STATE_IDLE;
 sensor_data_t global_sensor_data = {0};
 SemaphoreHandle_t sensor_data_mutex = NULL;
+QueueHandle_t ai_state_queue = NULL;
 
 // Task handles
 TaskHandle_t ui_task_handle = NULL;
 TaskHandle_t ai_task_handle = NULL;
 TaskHandle_t scan_task_handle = NULL;
 TaskHandle_t system_task_handle = NULL;
-
-// Global state and synchronization
-ai_state_t current_ai_state = AI_STATE_IDLE;
-sensor_data_t global_sensor_data = {0};
-SemaphoreHandle_t sensor_data_mutex = NULL;
-QueueHandle_t ai_state_queue = NULL;
 
 // Task function declarations
 void ui_task(void* parameter);
@@ -169,7 +165,7 @@ bool initialize_storage(void) {
 
     // Initialize SD card (optional - don't fail if not present)
     if (SD.begin(SD_CS)) {
-        uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+        uint64_t cardSize = SD.size() / (1024 * 1024);
         Serial.printf("✅ SD Card initialized: %lluMB\n", cardSize);
 
         // Create log directory if it doesn't exist
@@ -241,16 +237,6 @@ void create_tasks(void) {
     );
     Serial.println("✅ System Task created on Core 0");
 }
-
-// Global variables that should be declared at the top of main.cpp
-sensor_data_t global_sensor_data = {0};
-SemaphoreHandle_t sensor_data_mutex = NULL;
-
-// Task handles
-TaskHandle_t ui_task_handle = NULL;
-TaskHandle_t ai_task_handle = NULL;
-TaskHandle_t scan_task_handle = NULL;
-TaskHandle_t system_task_handle = NULL;
 
 // Task implementations are in separate files
 extern void ui_task(void* parameter);

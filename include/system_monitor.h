@@ -47,3 +47,24 @@ bool system_monitor_is_critical(void);
 void system_monitor_update_status_led(void);
 
 #endif // SYSTEM_MONITOR_H
+#ifndef SYSTEM_MONITOR_H
+#define SYSTEM_MONITOR_H
+
+#include <Arduino.h>
+
+// System monitoring structure
+typedef struct {
+    uint32_t free_heap_size;
+    uint32_t free_psram_size;
+    uint32_t min_free_heap;
+    float cpu_temperature;
+    uint32_t task_count;
+    bool critical_state;
+} system_metrics_t;
+
+// Function declarations
+bool system_monitor_init(void);
+bool system_monitor_is_critical(void);
+void system_task(void* parameter);
+
+#endif // SYSTEM_MONITOR_H
