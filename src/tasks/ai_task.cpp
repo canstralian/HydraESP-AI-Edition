@@ -170,3 +170,58 @@ void log_state_change(ai_state_t old_state, ai_state_t new_state) {
     
     // TODO: Log to SD card if available for long-term analysis
 }
+/**
+ * @file ai_task.cpp
+ * @brief AI inference and decision making task
+ */
+
+#include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/queue.h>
+#include "config.h"
+#include "ai_states.h"
+
+// External variables
+extern sensor_data_t global_sensor_data;
+extern SemaphoreHandle_t sensor_data_mutex;
+extern QueueHandle_t ai_state_queue;
+extern ai_state_t current_ai_state;
+
+/**
+ * @brief AI Task - performs state inference and decision making
+ */
+void ai_task(void* parameter) {
+    Serial.println("🧠 AI Task started");
+    
+    TickType_t last_wake_time = xTaskGetTickCount();
+    sensor_data_t local_sensor_data;
+    
+    while (true) {
+        // Copy sensor data safely
+        if (xSemaphoreTake(sensor_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            memcpy(&local_sensor_data, &global_sensor_data, sizeof(sensor_data_t));
+            xSemaphoreGive(sensor_data_mutex);
+        }
+        
+        // Perform AI inference
+        ai_state_t new_state = infer_ai_state(&local_sensor_data);
+        
+        // Update state if changed
+        if (new_state != current_ai_state) {
+            current_ai_state = new_state;
+            
+            // Send state change to UI task
+            if (ai_state_queue != NULL) {
+                xQueueSend(ai_state_queue, &new_state, 0);
+            }
+            
+            Serial.printf("🧠 AI State changed to: %s %s\n", 
+                         ai_state_to_string(new_state),
+                         ai_state_to_emoji(new_state));
+        }
+        
+        // Sleep until next inference cycle
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(AI_UPDATE_INTERVAL));
+    }
+}

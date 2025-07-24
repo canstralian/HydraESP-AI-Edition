@@ -137,7 +137,7 @@ void create_ponagotchi_ui(void) {
     stats_label = lv_label_create(main_screen);
     lv_label_set_text(stats_label, "Memory: OK\nUptime: 0s");
     lv_obj_set_style_text_color(stats_label, lv_color_hex(0x00FF00), 0);
-    lv_obj_set_style_text_font(stats_label, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(stats_label, &lv_font_montserrat_14, 0);
     lv_obj_set_pos(stats_label, 10, 180);
     
     // Create network stats label (bottom right)

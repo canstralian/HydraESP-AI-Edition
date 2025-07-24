@@ -71,3 +71,29 @@ bool system_monitor_is_critical(void);
 void system_monitor_get_metrics(system_metrics_t* metrics);
 
 #endif // SYSTEM_MONITOR_H
+#ifndef SYSTEM_MONITOR_H
+#define SYSTEM_MONITOR_H
+
+#include <Arduino.h>
+
+// System metrics structure
+typedef struct {
+    uint32_t free_heap_size;
+    uint32_t free_psram_size;
+    uint32_t min_free_heap;
+    uint32_t uptime_ms;
+    uint8_t task_count;
+    float temperature_celsius;
+    uint8_t cpu_usage_percent;
+    bool wifi_connected;
+    bool sd_card_mounted;
+} system_metrics_t;
+
+// Function declarations
+bool system_monitor_init(void);
+void system_monitor_get_metrics(system_metrics_t* metrics);
+void system_monitor_log_metrics(void);
+bool system_monitor_is_critical(void);
+void system_monitor_update_status_led(void);
+
+#endif // SYSTEM_MONITOR_H

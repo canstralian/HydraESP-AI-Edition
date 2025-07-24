@@ -163,7 +163,7 @@ bool initialize_storage(void) {
     
     // Initialize SD card (optional - don't fail if not present)
     if (SD.begin(SD_CS)) {
-        uint64_t cardSize = SD.size() / (1024 * 1024);
+        uint64_t cardSize = SD.cardSize() / (1024 * 1024);
         Serial.printf("✅ SD Card initialized: %lluMB\n", cardSize);
         
         // Create log directory if it doesn't exist
