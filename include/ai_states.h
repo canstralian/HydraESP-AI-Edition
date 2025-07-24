@@ -51,3 +51,37 @@ const char* ai_state_to_string(ai_state_t state);
 const char* ai_state_to_emoji(ai_state_t state);
 
 #endif // AI_STATES_H
+#ifndef AI_STATES_H
+#define AI_STATES_H
+
+#include <Arduino.h>
+
+// AI State enumeration
+typedef enum {
+    AI_STATE_IDLE = 0,
+    AI_STATE_SNIFFING,
+    AI_STATE_TRACKING,
+    AI_STATE_LEARNING,
+    AI_STATE_EXCITED,
+    AI_STATE_SLEEPING,
+    AI_STATE_ERROR,
+    AI_STATE_UPDATING
+} ai_state_t;
+
+// Sensor data structure
+typedef struct {
+    uint32_t wifi_networks_count;
+    int32_t wifi_signal_strength;
+    uint32_t ble_devices_count;
+    int32_t ble_signal_strength;
+    uint32_t free_memory;
+    uint32_t uptime_seconds;
+    bool user_interaction;
+    bool sd_card_present;
+} sensor_data_t;
+
+// Function declarations
+ai_state_t infer_ai_state(const sensor_data_t* data);
+const char* ai_state_to_string(ai_state_t state);
+
+#endif // AI_STATES_H

@@ -58,4 +58,19 @@
 #define MAX_BLE_DEVICES    30
 #define SCAN_TIME_SECONDS  10
 
+// Magic number constants
+#define WIFI_SCAN_TIMEOUT_MS      300
+#define BLE_SCAN_INTERVAL         100
+#define BLE_SCAN_WINDOW          99
+#define STATS_UPDATE_INTERVAL_MS  1000
+#define LOG_INTERVAL_MS          30000
+#define CLEANUP_MEMORY_MULTIPLIER 2
+
+// Temperature thresholds
+#define CRITICAL_TEMPERATURE_C    85.0
+#define MAX_TASK_COUNT_WARNING    20
+
+// SSID string length
+#define MAX_SSID_LENGTH          32
+
 #endif // CONFIG_H

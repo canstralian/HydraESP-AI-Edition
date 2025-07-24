@@ -4,11 +4,13 @@
  */
 
 #include <Arduino.h>
+#include <WiFi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <SPIFFS.h>
 #include <SD.h>
 #include "config.h"
+#include "ai_states.h"
 #include "system_monitor.h"
 
 // External variables
@@ -29,6 +31,111 @@ void log_system_status(void);
 /**
  * @brief System Task - monitors system health and manages resources
  */
+void system_task(void* parameter) {
+    Serial.println("⚙️ System Task started");
+    
+    TickType_t last_wake_time = xTaskGetTickCount();
+    
+    while (true) {
+        // Collect system metrics
+        collect_system_metrics();
+        
+        // Update global sensor data
+        update_global_sensor_data();
+        
+        // Check for critical conditions
+        check_critical_conditions();
+        
+        // Manage memory if needed
+        manage_memory();
+        
+        // Log system status periodically
+        static uint32_t last_log = 0;
+        if (millis() - last_log > 30000) {  // Every 30 seconds
+            log_system_status();
+            last_log = millis();
+        }
+        
+        // Sleep until next monitoring cycle
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(SYSTEM_MONITOR_INTERVAL));
+    }
+}
+
+/**
+ * @brief Initialize system monitor
+ */
+bool system_monitor_init(void) {
+    Serial.println("⚙️ Initializing system monitor...");
+    
+    // Initialize metrics structure
+    memset(&current_metrics, 0, sizeof(current_metrics));
+    
+    // Collect initial metrics
+    collect_system_metrics();
+    
+    Serial.println("✅ System monitor initialized");
+    return true;
+}
+
+/**
+ * @brief Check if system is in critical state
+ */
+bool system_monitor_is_critical(void) {
+    return system_critical;
+}
+
+/**
+ * @brief Check for critical system conditions
+ */
+void check_critical_conditions(void) {
+    system_critical = false;
+    
+    // Check memory levels
+    if (current_metrics.free_heap_size < LOW_MEMORY_THRESHOLD) {
+        Serial.println("⚠️ Critical: Low memory!");
+        system_critical = true;
+    }
+    
+    // Check temperature
+    if (current_metrics.temperature_celsius > 85.0) {
+        Serial.println("⚠️ Critical: High temperature!");
+        system_critical = true;
+    }
+    
+    // Check task count
+    if (current_metrics.task_count > 20) {
+        Serial.println("⚠️ Warning: High task count");
+    }
+}
+
+/**
+ * @brief Manage memory usage
+ */
+void manage_memory(void) {
+    // Force garbage collection if memory is low
+    if (current_metrics.free_heap_size < LOW_MEMORY_THRESHOLD * 2) {
+        // Trigger any available cleanup
+        Serial.println("🧹 Performing memory cleanup...");
+        
+        // Force heap defragmentation if available
+        // This is ESP32-specific and may not be available in all versions
+    }
+}
+
+/**
+ * @brief Log system status
+ */
+void log_system_status(void) {
+    Serial.println("📊 System Status:");
+    Serial.printf("   Free Heap: %d KB\n", current_metrics.free_heap_size / 1024);
+    Serial.printf("   Free PSRAM: %d KB\n", current_metrics.free_psram_size / 1024);
+    Serial.printf("   Min Free Heap: %d KB\n", current_metrics.min_free_heap / 1024);
+    Serial.printf("   Uptime: %d ms\n", current_metrics.uptime_ms);
+    Serial.printf("   Tasks: %d\n", current_metrics.task_count);
+    Serial.printf("   Temperature: %.1f°C\n", current_metrics.temperature_celsius);
+    Serial.printf("   WiFi: %s\n", current_metrics.wifi_connected ? "Connected" : "Disconnected");
+    Serial.printf("   SD Card: %s\n", current_metrics.sd_card_mounted ? "Mounted" : "Not mounted");
+}
 void system_task(void* parameter) {
     Serial.println("⚙️  System Task started");
     
@@ -83,7 +190,7 @@ void collect_system_metrics(void) {
     
     // Connectivity status
     current_metrics.wifi_connected = WiFi.status() == WL_CONNECTED;
-    current_metrics.sd_card_mounted = SD.cardType() != CARD_NONE;
+    current_metrics.sd_card_mounted = SD.begin();
 }
 
 /**

@@ -7,6 +7,23 @@
 #include "config.h"
 
 /**
+ * @brief Convert AI state enum to human-readable string
+ */
+const char* ai_state_to_string(ai_state_t state) {
+    switch (state) {
+        case AI_STATE_IDLE: return "Idle";
+        case AI_STATE_SNIFFING: return "Sniffing";
+        case AI_STATE_TRACKING: return "Tracking";
+        case AI_STATE_LEARNING: return "Learning";
+        case AI_STATE_EXCITED: return "Excited";
+        case AI_STATE_SLEEPING: return "Sleeping";
+        case AI_STATE_ERROR: return "Error";
+        case AI_STATE_UPDATING: return "Updating";
+        default: return "Unknown";
+    }
+}
+
+/**
  * @brief AI inference function to determine current state
  */
 ai_state_t infer_ai_state(const sensor_data_t* data) {

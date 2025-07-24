@@ -94,7 +94,7 @@ ai_state_t analyze_behavior(const sensor_data_t* data) {
     
     // Check for high activity states
     if (data->wifi_networks_count >= HIGH_WIFI_ACTIVITY_THRESHOLD) {
-        excitement_level = min(excitement_level + 5, 100);
+        excitement_level = min(excitement_level + 5, (uint32_t)100);
         
         if (excitement_level > 80) {
             return AI_STATE_EXCITED;
@@ -110,7 +110,7 @@ ai_state_t analyze_behavior(const sensor_data_t* data) {
     
     // Learning state when processing data
     if (current_ai_state == AI_STATE_SNIFFING && state_duration > 5000) {
-        learning_progress = min(learning_progress + 10, 100);
+        learning_progress = min(learning_progress + 10, (uint32_t)100);
         return AI_STATE_LEARNING;
     }
     
@@ -140,7 +140,7 @@ void update_learning_metrics(ai_state_t new_state) {
             break;
             
         case AI_STATE_EXCITED:
-            excitement_level = min(excitement_level + 10, 100);
+            excitement_level = min(excitement_level + 10, (uint32_t)100);
             break;
             
         case AI_STATE_SLEEPING:
@@ -155,8 +155,8 @@ void update_learning_metrics(ai_state_t new_state) {
     }
     
     // Cap metrics at reasonable values
-    learning_progress = min(learning_progress, 100);
-    excitement_level = min(excitement_level, 100);
+    learning_progress = min(learning_progress, (uint32_t)100);
+    excitement_level = min(excitement_level, (uint32_t)100);
 }
 
 /**
