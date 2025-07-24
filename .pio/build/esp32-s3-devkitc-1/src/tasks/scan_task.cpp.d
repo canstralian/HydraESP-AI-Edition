@@ -227,4 +227,5 @@
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEScan.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEUtils.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEScan.h \
- include/config.h include/ai_states.h
+ include/config.h include/ai_states.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src/BLEAdvertisedDevice.h

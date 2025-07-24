@@ -199,6 +199,8 @@
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/SD.h \

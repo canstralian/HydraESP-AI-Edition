@@ -180,6 +180,26 @@
  /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_hw_support/include/soc/esp32/spiram.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/io_pin_remap.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiType.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiSTA.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiGeneric.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/esp_wifi/include/esp_smartconfig.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/manager.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/common/protocomm.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/protocomm/include/security/protocomm_security.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/wifi_provisioning/include/wifi_provisioning/wifi_config.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiAP.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiScan.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiClient.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Client.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiServer.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Server.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
+ /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src/SPIFFS.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/SD.h \
@@ -188,6 +208,5 @@
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/utility/Sd2PinMap.h \
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/utility/SdInfo.h \
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/utility/FatStructs.h \
- /home/runner/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/utility/SdFatUtil.h \
- include/config.h include/system_monitor.h
+ include/config.h include/ai_states.h include/system_monitor.h
