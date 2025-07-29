@@ -153,3 +153,21 @@ release: ## Release build with optimizations
 .PHONY: profile
 profile: ## Profile build for performance analysis
 	$(PIO) run --environment $(BOARD) --build-flags="-DPROFILE_ENABLED"
+
+.PHONY: release-prepare
+release-prepare: ## Prepare a new release
+	@echo "🚀 Preparing release..."
+	bash scripts/prepare_release.sh
+
+.PHONY: release-build
+release-build: ## Build release binaries
+	@echo "📦 Building release binaries..."
+	$(PIO) run $(PIO_ENV) --build-flags="-O2 -DNDEBUG -DRELEASE_BUILD"
+
+.PHONY: release-package
+release-package: release-build ## Create release package
+	@echo "📋 Creating release package..."
+	mkdir -p release
+	cp .pio/build/$(BOARD)/firmware.bin release/
+	cp .pio/build/$(BOARD)/bootloader.bin release/
+	cp .pio/build/$(BOARD)/partitions.bin release/
