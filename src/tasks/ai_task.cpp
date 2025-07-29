@@ -32,14 +32,26 @@ void ai_task(void* parameter) {
     sensor_data_t local_sensor_data;
 
     while (true) {
-        // Get current sensor data safely
+        // Get current sensor data safely with retry mechanism
+        static uint8_t sensor_fetch_failures = 0;
         if (xSemaphoreTake(sensor_data_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
             memcpy(&local_sensor_data, &global_sensor_data, sizeof(sensor_data_t));
             xSemaphoreGive(sensor_data_mutex);
+            sensor_fetch_failures = 0; // Reset failure counter on success
         } else {
-            Serial.println("⚠️  AI Task: Failed to get sensor data");
-            vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(AI_UPDATE_INTERVAL));
-            continue;
+            sensor_fetch_failures++;
+            Serial.printf("⚠️  AI Task: Failed to get sensor data (attempt %d/3)\n", sensor_fetch_failures);
+            
+            if (sensor_fetch_failures >= 3) {
+                // Use last known good data or defaults after 3 failures
+                Serial.println("🔄 AI Task: Using fallback sensor data");
+                memset(&local_sensor_data, 0, sizeof(sensor_data_t));
+                local_sensor_data.free_memory = ESP.getFreeHeap(); // At least get current memory
+                sensor_fetch_failures = 0; // Reset counter
+            } else {
+                vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(AI_UPDATE_INTERVAL));
+                continue;
+            }
         }
 
         // Perform AI inference
@@ -163,5 +175,23 @@ void log_state_change(ai_state_t old_state, ai_state_t new_state) {
                   ai_state_to_string(new_state),
                   state_duration);
 
-    // TODO: Log to SD card if available for long-term analysis
+    // Log to SD card if available for long-term analysis
+    if (global_sensor_data.sd_card_present) {
+        static File logFile;
+        String timestamp = String(millis());
+        String logEntry = timestamp + "," + 
+                         String(ai_state_to_string(old_state)) + "," +
+                         String(ai_state_to_string(new_state)) + "," +
+                         String(state_duration) + "," +
+                         String(excitement_level) + "," +
+                         String(learning_progress) + "\n";
+        
+        logFile = SD.open("/logs/ai_states.csv", FILE_APPEND);
+        if (logFile) {
+            logFile.print(logEntry);
+            logFile.close();
+        } else {
+            Serial.println("⚠️  Failed to write to SD card log");
+        }
+    }
 }

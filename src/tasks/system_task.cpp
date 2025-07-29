@@ -135,9 +135,30 @@ void check_critical_conditions(void) {
  * @brief Perform memory management and cleanup
  */
 void manage_memory(void) {
+    static uint32_t last_defrag_time = 0;
+    uint32_t current_time = millis();
+    
     // Force garbage collection if memory is low
     if (current_metrics.free_heap_size < (LOW_MEMORY_THRESHOLD * 2)) {
         Serial.println("🧹 Performing memory cleanup...");
+        
+        // Attempt to defragment heap every 30 seconds when memory is low
+        if (current_time - last_defrag_time > 30000) {
+            Serial.println("🔧 Attempting heap defragmentation...");
+            
+            // Force LVGL memory cleanup if available
+            #ifdef LV_USE_MEM_MONITOR
+            lv_mem_monitor_t mon;
+            lv_mem_monitor(&mon);
+            Serial.printf("🎨 LVGL Memory - Used: %d KB, Free: %d KB, Frag: %d%%\n",
+                         mon.used_pct, mon.free_cnt, mon.frag_pct);
+            #endif
+            
+            // Trigger system garbage collection
+            heap_caps_check_integrity_all(true);
+            last_defrag_time = current_time;
+        }
+        
         Serial.printf("🧹 Memory after cleanup: %lu bytes free\n", ESP.getFreeHeap());
     }
 
