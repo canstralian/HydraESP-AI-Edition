@@ -212,4 +212,5 @@
  .pio/libdeps/esp32-s3-devkitc-1/SD/src/utility/SdFatUtil.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src/SPIFFS.h \
  /home/runner/.platformio/packages/framework-arduinoespressif32/libraries/FS/src/FS.h \
- include/config.h include/ai_states.h include/system_monitor.h
+ include/config.h include/ai_states.h include/system_monitor.h \
+ include/version.h
